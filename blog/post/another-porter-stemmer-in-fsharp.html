@@ -1,0 +1,267 @@
+<html>
+  <head>
+
+        <script type="text/javascript">
+          var wsUri = "ws://localhost:8080/websocket";
+      function init()
+      {
+        websocket = new WebSocket(wsUri);
+        websocket.onclose = function(evt) { onClose(evt) };
+      }
+      function onClose(evt)
+      {
+        console.log('closing');
+        websocket.close();
+        document.location.reload();
+      }
+      window.addEventListener("load", init, false);
+      </script>
+            <meta charSet="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>
+      Sample Fornax blog
+    </title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.png"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans"/>
+    <link rel="stylesheet" href="https://unpkg.com/bulma@0.8.0/css/bulma.min.css"/>
+    <link rel="stylesheet" type="text/css" href="/style/style.css"/>
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="container">
+        <div class="navbar-brand">
+          <a class="navbar-item" href="/">
+            <img src="/images/bulma.png" alt="Logo"/>
+          </a>
+          <span class="navbar-burger burger" data-target="navbarMenu">
+            <span></span>
+            <span></span>
+            <span></span>
+          </span>
+        </div>
+        <div id="navbarMenu" class="navbar-menu">
+          <a class="navbar-item" href="/">
+            Home
+          </a>
+          <a class="navbar-item" href="/about.html">
+            About
+          </a>
+          <a class="navbar-item" href="/contact.html">
+            Contact
+          </a>
+        </div>
+      </div>
+    </nav>
+    <section class="hero is-info is-medium is-bold">
+      <div class="hero-body">
+        <div class="container has-text-centered">
+          <h1 class="title">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit
+          </h1>
+        </div>
+      </div>
+    </section>
+    <div class="container">
+      <section class="articles">
+        <div class="column is-8 is-offset-2">
+          <div class="card article">
+            <div class="card-content">
+              <div class="media-content has-text-centered">
+                <p class="title article-title">
+                  <a href="/blog/post/another-porter-stemmer-in-fsharp.html">
+                    Another Porter Stemmer in F#
+                  </a>
+                </p>
+                <p class="subtitle is-6 article-subtitle">
+                  <a href="#">
+                    Andreas Ågren
+                  </a>
+                  on 2014-04-20
+                </p>
+              </div>
+              <div class="content article-body">
+                <h2>Stemming</h2>
+<p>Stemming is the process for reducing words to their root form, e.g. both &quot;acceptable&quot; and &quot;acceptance&quot; might be reduced to &quot;accept&quot;.</p>
+<p>I'm working on a side project where I will have use for a stemmer, so I decided to look around a bit for a straight forward, and well explained, solution. Many resources seemed to point towards the <a href="http://snowball.tartarus.org/algorithms/porter/stemmer.html">Porter Stemmer</a>. This is an algorithm created by <a href="http://tartarus.org/%7Emartin/">Martin Porter</a> and it works by setting up a few rules which are then, together with matching word endings, used for matching which words should be reduced to which stems.</p>
+<p>Please note that as the title suggests, this is hardly the only F# solution. A search quickly reveals at least two others:</p>
+<ul>
+<li><a href="http://blogs.msdn.com/b/christianb/archive/2011/06/24/a-porter-stemmer-in-f.aspx">A Porter Stemmer in F# - MSDN Blogs</a></li>
+<li><a href="http://fwaris.wordpress.com/2012/10/30/porter-stemmer-in-f/">Porter Stemmer in F# | Faisal's space</a></li>
+</ul>
+<p>Using the algorithm description, and by getting quite a lot of inspiration from Faisal's solution, I have put together my own implementation:</p>
+<!--more-->
+<h2>Type</h2>
+<p>The only type in this implementation, it denotes either vowel or consonant:</p>
+<pre><code>type private Kind =
+    | V
+    | C
+</code></pre>
+<h2>Base Functions</h2>
+<p>Here are a few helper functions which helps with converting a word to a list of vowels/consonants, group them so that e.g. VCCVC becomes VCVC and finally get the measurement of a word. The measurement is calculated by counting the number of VC pairs.</p>
+<pre><code>let private (|BaseV|_|) char =
+    match char with
+    | 'a' | 'e' | 'i' | 'o' | 'u' -&gt; Some BaseV
+    | _ -&gt; None
+
+let private kinds (word:string) =
+    let rec kinds chars =
+        match chars with
+        | [] -&gt; []
+        | ['y'] -&gt; [C]
+        | 'y'::t -&gt; (kinds t |&gt; List.head |&gt; (function | V -&gt; C | C -&gt; V))::kinds t
+        | BaseV::t -&gt; V::kinds t
+        | _::t -&gt; C::kinds t
+    word |&gt; Seq.toList |&gt; List.rev |&gt; kinds |&gt; List.rev
+
+let private pack kinds =
+    kinds
+    |&gt; List.fold
+        (fun kl k -&gt; 
+            match k::kl with 
+            | [] -&gt; [k]
+            | V::V::_ | C::C::_ -&gt; kl
+            | _ -&gt; k::kl) []
+    |&gt; List.rev
+
+let rec private measurement kinds =
+    match kinds with
+    | [] -&gt; 0
+    | V::C::t -&gt; (measurement t) + 1
+    | h::t -&gt; measurement t
+</code></pre>
+<h2>Conditions and Rules</h2>
+<p>Following this is a couple of functions that does the matching against the conditions and word suffixes as specified by the algorithm.</p>
+<pre><code>/// The stem ends with e.g. &quot;s&quot; or any letter/word. (*S in the Porter algorithm description.)
+let private (|Ends|_|) (s:string list) (word:string) =
+    match List.tryFind (fun s -&gt; word.EndsWith(s)) s with
+    | Some s -&gt; Some ((word.Substring(0, String.length word - String.length s)), s)
+    | None -&gt; None
+
+let private ends s trunk =
+    match trunk with
+    | Ends s _ -&gt; true
+    | _ -&gt; false
+
+/// The stem ends with a double -and equal- consonant. (*d in the Porter algorithm description.)
+let private (|EndsDoubleC|_|) trunk =
+    match trunk |&gt; kinds |&gt; List.rev with
+    | C::C::_ when trunk.[String.length trunk - 2] = trunk.[String.length trunk - 1] -&gt; Some ((trunk.Substring(0, String.length trunk - 2)), (trunk.Substring(String.length trunk - 2, 2)))
+    | _ -&gt; None
+
+/// Calculates the measurement of a stem. (m in the Porter algorithm description.)
+let private m  =
+    kinds &gt;&gt; pack &gt;&gt; measurement
+
+/// The stem contains a vowel. (*v* in Porter algorithm description.)
+let private hasVowel trunk =
+    trunk |&gt; kinds |&gt; List.exists (fun k -&gt; k = V)
+
+/// The word ends in CVC, where the second C (i.e. the last character) is not w, x or y. (*o in the Porter algorithm description.)
+let private (|EndsCVCNotWXY|_|) word =
+    match word with
+    | Ends [&quot;w&quot;; &quot;x&quot;; &quot;y&quot;] _ -&gt; None
+    | t -&gt;
+        match t |&gt; kinds |&gt; List.rev with
+        | C::V::C::_ -&gt; Some t
+        | _ -&gt; None
+
+let private notEndsCVCNotWXY trunk =
+    match trunk with
+    | EndsCVCNotWXY _ -&gt; false
+    | _ -&gt; true
+</code></pre>
+<h2>Steps</h2>
+<p>And finally, the steps that the words flow through and a function that composes them in the right order. The steps contains the specific conditions and word suffixes that must be matched for a change to be made.</p>
+<pre><code>let private step1a w =
+    match w with
+    | Ends [&quot;sses&quot;; &quot;ss&quot;] (t, s) -&gt; t + &quot;ss&quot;
+    | Ends [&quot;ies&quot;] (t, s) -&gt; t + &quot;i&quot;
+    | Ends [&quot;s&quot;] (t, s) -&gt; t
+    | _ -&gt; w
+
+let private step1b w =
+    let step1bX w =
+        match w with
+        | Ends [&quot;at&quot;] (t, s) -&gt; t + &quot;ate&quot;
+        | Ends [&quot;bl&quot;] (t, s) -&gt; t + &quot;ble&quot;
+        | Ends [&quot;iz&quot;] (t, s) -&gt; t + &quot;ize&quot;
+        | EndsDoubleC (t, s) when not (s = &quot;ll&quot; || s = &quot;ss&quot; || s = &quot;zz&quot;)  -&gt; t + string (Seq.head s)
+        | EndsCVCNotWXY t when m t = 1  -&gt; t + &quot;e&quot;
+        | _ -&gt; w
+    match w with
+    | Ends [&quot;eed&quot;] (t, s) -&gt; if m t &gt; 0 then t + &quot;ee&quot; else t + s
+    | Ends [&quot;ed&quot;; &quot;ing&quot;] (t, s) when hasVowel t  -&gt; step1bX t
+    | _ -&gt; w
+
+let private step1c w =
+    match w with
+    | Ends [&quot;y&quot;] (t, s) when hasVowel t -&gt; t + &quot;i&quot;
+    | _ -&gt; w
+
+let private step2 w =
+    match w with
+    | Ends [&quot;ational&quot;] (t, s) when m t &gt; 0 -&gt; t + &quot;ate&quot;
+    | Ends [&quot;fulness&quot;] (t, s) when m t &gt; 0 -&gt; t + &quot;ful&quot;
+    | Ends [&quot;iveness&quot;] (t, s) when m t &gt; 0 -&gt; t + &quot;ive&quot;
+    | Ends [&quot;ization&quot;] (t, s) when m t &gt; 0 -&gt; t + &quot;ize&quot;
+    | Ends [&quot;ousness&quot;] (t, s) when m t &gt; 0 -&gt; t + &quot;ous&quot;
+    | Ends [&quot;biliti&quot;] (t, s) when m t &gt; 0 -&gt; t + &quot;ble&quot;
+    | Ends [&quot;tional&quot;] (t, s) when m t &gt; 0 -&gt; t + &quot;tion&quot;
+    | Ends [&quot;alism&quot;; &quot;aliti&quot;] (t, s) when m t &gt; 0 -&gt; t + &quot;al&quot;
+    | Ends [&quot;ation&quot;] (t, s) when m t &gt; 0 -&gt; t + &quot;ate&quot;
+    | Ends [&quot;entli&quot;] (t, s) when m t &gt; 0 -&gt; t + &quot;ent&quot;
+    | Ends [&quot;iviti&quot;] (t, s) when m t &gt; 0 -&gt; t + &quot;ive&quot;
+    | Ends [&quot;ousli&quot;] (t, s) when m t &gt; 0 -&gt; t + &quot;ous&quot;
+    | Ends [&quot;abli&quot;] (t, s) when m t &gt; 0 -&gt; t + &quot;able&quot;
+    | Ends [&quot;alli&quot;] (t, s) when m t &gt; 0 -&gt; t + &quot;al&quot;
+    | Ends [&quot;anci&quot;] (t, s) when m t &gt; 0 -&gt; t + &quot;ance&quot;
+    | Ends [&quot;ator&quot;] (t, s) when m t &gt; 0 -&gt; t + &quot;ate&quot;
+    | Ends [&quot;enci&quot;] (t, s) when m t &gt; 0 -&gt; t + &quot;ence&quot;
+    | Ends [&quot;izer&quot;] (t, s) when m t &gt; 0 -&gt; t + &quot;ize&quot;
+    | Ends [&quot;eli&quot;] (t, s) when m t &gt; 0 -&gt; t + &quot;e&quot;
+    | _ -&gt; w
+
+let private step3 w =
+    match w with
+    | Ends [&quot;alize&quot;] (t, s) when m t &gt; 0 -&gt; t + &quot;al&quot;
+    | Ends [&quot;ative&quot;] (t, s) when m t &gt; 0 -&gt; t
+    | Ends [&quot;icate&quot;; &quot;iciti&quot;; &quot;ical&quot;] (t, s) when m t &gt; 0 -&gt; t + &quot;ic&quot;
+    | Ends [&quot;ness&quot;; &quot;ful&quot;] (t, s) when m t &gt; 0 -&gt; t
+    | _ -&gt; w
+
+let private step4 w =
+    match w with
+    | Ends [&quot;al&quot;; &quot;ance&quot;; &quot;ence&quot;; &quot;er&quot;; &quot;ic&quot;; &quot;able&quot;; &quot;ible&quot;; &quot;ant&quot;; &quot;ement&quot;; &quot;ment&quot;; &quot;ent&quot;; &quot;ou&quot;; &quot;ism&quot;; &quot;ate&quot;; &quot;iti&quot;; &quot;ous&quot;; &quot;ive&quot;; &quot;ize&quot;] (t, s) when m t &gt; 1 -&gt; t
+    | Ends [&quot;ion&quot;] (t, s) when m t &gt; 1 &amp;&amp; ends [&quot;s&quot;; &quot;t&quot;] t -&gt; t
+    | _ -&gt; w
+
+let private step5a w =
+    match w with
+    | Ends [&quot;e&quot;] (t, s) when m t &gt; 1 -&gt; t
+    | Ends [&quot;e&quot;] (t, s) when m t = 1 &amp;&amp; notEndsCVCNotWXY t -&gt; t
+    | _ -&gt; w
+
+let private step5b w =
+    match w with
+    | EndsDoubleC (t, s) when m w &gt; 1 &amp;&amp; s = &quot;ll&quot; -&gt; t + string (Seq.head s)
+    | _ -&gt; w
+
+let stem word =
+    word |&gt; step1a |&gt; step1b |&gt; step1c |&gt; step2 |&gt; step3 |&gt; step4 |&gt; step5a |&gt; step5b
+</code></pre>
+<h2>Tests</h2>
+<p>I have tested the implementation successfully against the <a href="http://snowball.tartarus.org/algorithms/porter/diffs.txt">list of vocabularies and their stemmed equivalents</a> that is linked to from the original algorithm description page.</p>
+<h2>Source Code</h2>
+<p>The full solution can be downloaded from <a href="https://github.com/andagr/PorterStemmer">github</a>.</p>
+<h2>Conclusion</h2>
+<p>In the end I'm pretty happy with the result, I've tried to make it as easy as possible to read and I hope I have reached that goal. I feel that F# has let me translate the description of the original algorithm very close to the code equivalent, much thanks to the amazing pattern matching that the language has to offer.</p>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </body>
+</html>
