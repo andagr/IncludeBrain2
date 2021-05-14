@@ -69,23 +69,37 @@
             <div class="card-content">
               <div class="media-content has-text-centered">
                 <p class="title article-title">
-                  <a href="/posts/post.html">
-                    Some nice post title
+                  <a href="/blog/post/url-rewrite-for-asp-net-web-api-spa.html">
+                    Url rewrite for ASP.NET Web API SPA
                   </a>
                 </p>
                 <p class="subtitle is-6 article-subtitle">
                   <a href="#">
-                    @k_cieslak
+                    Andreas Ågren
                   </a>
-                  on 2020-02-19
+                  on 2015-11-23
                 </p>
               </div>
               <div class="content article-body">
-                <h1>Introduction</h1>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi nisi diam, vehicula quis blandit id, suscipit sed libero. Proin at diam dolor. In hac habitasse platea dictumst. Donec quis dui vitae quam eleifend dignissim non sed libero. In hac habitasse platea dictumst. In ullamcorper mollis risus, a vulputate quam accumsan at. Donec sed felis sodales, blandit orci id, vulputate orci.</p>
+                <p><img src="/images/html-css-js.png" alt="HTML JS CSS" /></p>
+<p>I just wanted to share this thing I had to search a while for.</p>
+<p>When making a SPA (Single Page Application) I divided my website into two parts: One part Asp.net web api and one part static html/js/css, as one usually does. However, I also wanted to use the html5 history api with no hash in the url. For example, imagine that <code>http://example.com/</code> returns a list of users, and when clicking on &quot;Dolly Parton&quot; we change the url to <code>http://example.com/users/dolly-parton</code>, an ajax request is made to a back-end api, which returns a JSON-string, which is rendered in the view. Now imagine that we bookmark that url and then open it later, what will happen? Well, the server will receive a request for that path and e.g. try to find a directory /users/dolly-parton with an index.html in it, none is found so 404 you get.</p>
 <!--more-->
-<p>Phasellus aliquam tellus eu augue vulputate laoreet. Nunc tincidunt sed mauris eu vestibulum. Quisque id ex eget erat elementum euismod vel nec ex. Nunc et blandit neque. Duis erat ex, facilisis non consectetur sit amet, consectetur mattis ex. Vestibulum quis ligula pharetra, semper nibh nec, porta augue. In placerat auctor risus, eu dictum purus iaculis et. Vivamus viverra sollicitudin augue, in sollicitudin leo malesuada non.</p>
-<p>In hac habitasse platea dictumst. Quisque a diam egestas, ornare felis quis, gravida arcu. In vel tellus facilisis, rhoncus ligula sit amet, feugiat massa. Interdum et malesuada fames ac ante ipsum primis in faucibus. Curabitur varius interdum dolor, ut pretium augue egestas id. Aenean vulputate commodo nibh tristique egestas. Interdum et malesuada fames ac ante ipsum primis in faucibus. Vivamus elementum non mi sit amet lacinia.</p>
+<p>In other words, we need to make sure that most incoming paths are routed to our spa index.html so that <em>it</em> can handle the path and show the right view. We also need to still be able to call our back-end api, and we also need to be able to fetch our static html-templates, js- and css-files. In my case I have my api at <code>/api</code> and all my static files in a directory <code>/public</code>.</p>
+<p>I'm sure there are many ways to do this, but since I'm running an Asp.net Web API project I opted for IIS configuration in my web.config. Specifically this:</p>
+<pre><code>&lt;system.webServer&gt;
+  &lt;rewrite&gt;
+    &lt;rules&gt;
+      &lt;rule name=&quot;RewriteUnknownToIndex&quot; patternSyntax=&quot;ECMAScript&quot; stopProcessing=&quot;true&quot;&gt;
+        &lt;match url=&quot;^(public|api)/.*&quot; negate=&quot;true&quot;/&gt;
+        &lt;action type=&quot;Rewrite&quot; url=&quot;/public/index.html&quot;/&gt;
+      &lt;/rule&gt;
+    &lt;/rules&gt;
+  &lt;/rewrite&gt;
+&lt;/system.webServer&gt;
+</code></pre>
+<p>This rule simply says: If the path does <em>not</em> start with &quot;public&quot; or &quot;api&quot;, then return <code>/public/index.html</code>.</p>
+<p>It is an OWIN application, so there are probably some neat way to do this using the <code>Owin.IAppBuilder</code> (comments are welcome), but right now I decided to go with the IIS config, mainly for the simplicity.</p>
 
               </div>
             </div>

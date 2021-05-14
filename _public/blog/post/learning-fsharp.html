@@ -1,0 +1,131 @@
+<html>
+  <head>
+
+        <script type="text/javascript">
+          var wsUri = "ws://localhost:8080/websocket";
+      function init()
+      {
+        websocket = new WebSocket(wsUri);
+        websocket.onclose = function(evt) { onClose(evt) };
+      }
+      function onClose(evt)
+      {
+        console.log('closing');
+        websocket.close();
+        document.location.reload();
+      }
+      window.addEventListener("load", init, false);
+      </script>
+            <meta charSet="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>
+      Sample Fornax blog
+    </title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.png"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans"/>
+    <link rel="stylesheet" href="https://unpkg.com/bulma@0.8.0/css/bulma.min.css"/>
+    <link rel="stylesheet" type="text/css" href="/style/style.css"/>
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="container">
+        <div class="navbar-brand">
+          <a class="navbar-item" href="/">
+            <img src="/images/bulma.png" alt="Logo"/>
+          </a>
+          <span class="navbar-burger burger" data-target="navbarMenu">
+            <span></span>
+            <span></span>
+            <span></span>
+          </span>
+        </div>
+        <div id="navbarMenu" class="navbar-menu">
+          <a class="navbar-item" href="/">
+            Home
+          </a>
+          <a class="navbar-item" href="/about.html">
+            About
+          </a>
+          <a class="navbar-item" href="/contact.html">
+            Contact
+          </a>
+        </div>
+      </div>
+    </nav>
+    <section class="hero is-info is-medium is-bold">
+      <div class="hero-body">
+        <div class="container has-text-centered">
+          <h1 class="title">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit
+          </h1>
+        </div>
+      </div>
+    </section>
+    <div class="container">
+      <section class="articles">
+        <div class="column is-8 is-offset-2">
+          <div class="card article">
+            <div class="card-content">
+              <div class="media-content has-text-centered">
+                <p class="title article-title">
+                  <a href="/blog/post/learning-fsharp.html">
+                    Learning F#
+                  </a>
+                </p>
+                <p class="subtitle is-6 article-subtitle">
+                  <a href="#">
+                    Andreas Ågren
+                  </a>
+                  on 2014-01-04
+                </p>
+              </div>
+              <div class="content article-body">
+                <p>My main programming language when I was studying was, as for many other developers, Java. There were other languages too, but Java was the main tool for learning basic software development. Later in my work I came in contact with C#, and since then I have come to prefer it over Java due to its features and ability to quickly evolve, and the extensive .NET API.</p>
+<p>The basic aspect of C# is the object orientation which works similarly as in Java, although there are <a href="http://stackoverflow.com/questions/1882692/c-sharp-constructor-execution-order">subtle differences</a>. However, what makes it a bit more exciting are other features such as dynamic, async/await and functional. The latter is something that has gained quite a lot of popularity, although <a href="http://en.wikipedia.org/wiki/Functional_programming#History">it's not a new paradigm</a>. It was this aspect of C#, and in practice LINQ, that got me curious about functional programming in general.</p>
+<p>I decided to take a closer look at F#, partly because it's a member of the .NET platform but also because it seems to be developed from a pragmatic point of view. It is also very exciting that it is open source, seems to have a friendly community, and has support on several different platforms. Also noteworthy, at the time of writing F# has risen from position 45 to 16 in the <a href="http://www.tiobe.com/index.php/content/paperinfo/tpci/index.html">TIOBE index</a>.</p>
+<p><img src="/images/fsharp128.png" alt="F# Logo" /></p>
+<p>I am still very much a beginner, but in the spirit of recording things here are the resources I have used so far.</p>
+<!--more-->
+<h2>General</h2>
+<ul>
+<li><a href="http://fsharp.org">fsharp.org</a> - A hub for information about F# and the first place you should look.</li>
+<li><a href="http://www.tryfsharp.org">tryfsharp.org</a> - This site is amazing, it has a tutorial including an editor (with intellisense!) that works by using Silverlight to host the F# compiler in the browser.</li>
+<li><a href="http://fsharpforfunandprofit.com">fsharpforfunandprofit.com</a> - A general site for learning F# that contains a lot of information in the form of tutorials and posts.</li>
+<li><a href="http://msdn.microsoft.com/en-us/library/dd233181.aspx">F# Language Reference</a> - F# on MSDN.</li>
+<li><a href="http://learnxinyminutes.com/docs/fsharp/">Learn X in Y minutes, where X = F#</a> - To the point information about F# in the form of code examples.</li>
+</ul>
+<h2>Blogs</h2>
+<p>These are blogs, related to F#, that I try to read as often as possible, in no particular order.</p>
+<ul>
+<li><a href="http://rachelree.se/">Rachel Reese</a></li>
+<li><a href="http://www.devjoy.com/">Devjoy</a></li>
+<li><a href="http://blogs.msdn.com/b/fsharpteam/">Visual Studio F# Team</a></li>
+<li><a href="http://tomasp.net/">Tomas Petricek</a></li>
+<li><a href="http://sergeytihon.wordpress.com/">Sergey Tihon</a></li>
+<li><a href="http://blog.mavnn.co.uk/">Michael Newton</a></li>
+<li><a href="http://www.kiteason.com/">Kit Eason</a></li>
+<li><a href="http://blogs.msdn.com/b/dsyme/">Don Syme</a></li>
+</ul>
+<h2>Books</h2>
+<p>There are several <a href="http://fsharp.org/about/learning.html">book suggestions on fsharp.org</a>, and the one I got and am reading is <a href="http://www2.imm.dtu.dk/%7Emire/FSharpBook/">Functional Programming using F#</a>.</p>
+<p><img src="/images/9781107684065_200_functional-programming-using-f_haftad.jpg" alt="Functional Programming using F#" /></p>
+<h2>Videos</h2>
+<p>When I was at <a href="http://oredev.org">Öredev</a> I attended a couple of sessions on F#.</p>
+<h3>F# for C# developers by Phil Trelford</h3>
+<iframe src="//player.vimeo.com/video/78908217" width="500" height="300" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+<h3>Discovering Type Providers in F# 3.0 by Rachel Reese</h3>
+<iframe src="//player.vimeo.com/video/79402548" width="500" height="300" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+<h2>Podcasts</h2>
+<p><a href="http://www.dotnetrocks.com/">The .NET Rocks</a> show has several shows where they talk about F#.</p>
+<h2>Practicing</h2>
+<p><a href="http://projecteuler.net/">Project Euler</a> is a good resource to use for practicing problem solving using programming. Other than that I have used F# to solve a problem that interested me, and there will be a separate blog post about it later. I will keep using F# wherever it feels like a good fit, because for me personally trying things out is what works best when learning something.</p>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </body>
+</html>

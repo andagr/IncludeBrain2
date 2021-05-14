@@ -1,0 +1,249 @@
+<html>
+  <head>
+
+        <script type="text/javascript">
+          var wsUri = "ws://localhost:8080/websocket";
+      function init()
+      {
+        websocket = new WebSocket(wsUri);
+        websocket.onclose = function(evt) { onClose(evt) };
+      }
+      function onClose(evt)
+      {
+        console.log('closing');
+        websocket.close();
+        document.location.reload();
+      }
+      window.addEventListener("load", init, false);
+      </script>
+            <meta charSet="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>
+      Sample Fornax blog
+    </title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.png"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans"/>
+    <link rel="stylesheet" href="https://unpkg.com/bulma@0.8.0/css/bulma.min.css"/>
+    <link rel="stylesheet" type="text/css" href="/style/style.css"/>
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="container">
+        <div class="navbar-brand">
+          <a class="navbar-item" href="/">
+            <img src="/images/bulma.png" alt="Logo"/>
+          </a>
+          <span class="navbar-burger burger" data-target="navbarMenu">
+            <span></span>
+            <span></span>
+            <span></span>
+          </span>
+        </div>
+        <div id="navbarMenu" class="navbar-menu">
+          <a class="navbar-item" href="/">
+            Home
+          </a>
+          <a class="navbar-item" href="/about.html">
+            About
+          </a>
+          <a class="navbar-item" href="/contact.html">
+            Contact
+          </a>
+        </div>
+      </div>
+    </nav>
+    <section class="hero is-info is-medium is-bold">
+      <div class="hero-body">
+        <div class="container has-text-centered">
+          <h1 class="title">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit
+          </h1>
+        </div>
+      </div>
+    </section>
+    <div class="container">
+      <section class="articles">
+        <div class="column is-8 is-offset-2">
+          <div class="card article">
+            <div class="card-content">
+              <div class="media-content has-text-centered">
+                <p class="title article-title">
+                  <a href="/blog/post/helping-bitizens-to-better-jobs-in-tiny-tower-using-fsharp.html">
+                    Helping Bitizens to Better Jobs in Tiny Tower Using F#
+                  </a>
+                </p>
+                <p class="subtitle is-6 article-subtitle">
+                  <a href="#">
+                    Andreas Ågren
+                  </a>
+                  on 2014-03-17
+                </p>
+              </div>
+              <div class="content article-body">
+                <p><img src="/images/650px-Banner.png" alt="Tiny Tower" /></p>
+<p>From the <a href="http://tinytower.wikia.com/wiki/Tiny_Tower_Wiki">Tiny Tower wiki</a>:</p>
+<blockquote>
+<p>Tiny Tower is a simulation game developed by <a href="http://www.nimblebit.com/">NimbleBit</a> and released in
+June 2011. It is available to download on Apple iOS devices (3.0 or
+later) and Android devices. The object of the game is to build and
+manage a large skyscraper. Each new floor the player builds is either
+a Commercial floor that hosts businesses and venues, or a Residential
+floor that Bitizens live in. Bitizens live and work in the player's
+Tower, paying rent every day and stocking the Commercial floors with
+items to sell. The player's goal is to turn a profit, build more
+floors, and manage their ever-growing tower.</p>
+</blockquote>
+<p>Like you and me, bitizens have job satisfaction. This is decided by two things, their skill in the job, and if it is their dream job. To be specific:</p>
+<!--more-->
+<h2>Category / Color</h2>
+<p>Each business has a color that represents a category:</p>
+<ul>
+<li>Green for food</li>
+<li>Blue for service</li>
+<li>Purple for retail</li>
+<li>Yellow for recreation</li>
+<li>Orange for creative</li>
+</ul>
+<p>Each bitizen has one skill level, ranging from 0 - 9, in each color. The higher the skill level, the greater the discount will be for stocking items.</p>
+<h2>Dream Job</h2>
+<p>They also have one dream job that corresponds to a name of a business. When a bitizen is employed at her dream job she will be able to stock twice as many items as normal.</p>
+<h2>Sorting by Job Satisfaction</h2>
+<p>Higher job satisfaction means higher revenue, and using the above information we can create a tool that takes a list of bitizens and a list of businesses as input, and outputs a list of optimal employments (each business can employ three bitizens).</p>
+<p>Let's use the following formula for scoring the employment value of a bitizen:</p>
+<pre><code>Skill * 10 + 10 - Avg(Rest of Skills)
+</code></pre>
+<p>What this means is that the skill we are looking for is the one highest valued, and that specialists (high skill in question, low for others) are more valued than generalists (high in all skills). Here are some examples:</p>
+<pre><code>  |
+  V
+0,9,0 =&gt; 9*10 + 10-0 = 100
+1,9,1 =&gt; 9*10 + 10-1 = 99
+8,9,1 =&gt; 9*10 + 10-4.5 = 95,5
+8,9,8 =&gt; 9*10 + 10-8 = 92
+9,9,9 =&gt; 9*10 + 10-9 = 91
+0,8,0 =&gt; 8*10 + 10-0 = 90
+</code></pre>
+<p>The arrow denotes the skill column we are looking for in this specific example (the actual data will have of course have 5 skill values for each bitizen). As you can see, a bitizen with 9 in all skills is valued lower than one with 9 in only the desired skill. This is because if there are, say, 4 bitizens with a skill value of 9 for a specific job, then it's probably better to use up the specialist for this job and save the generalist for another job further down the list. The calculated value is then used to sort the list of bitizens based on which business that are looking for employees.</p>
+<h2>Types</h2>
+<p>Let's start with the F# types:</p>
+<pre><code>type Color =
+    | Green
+    | Blue
+    | Yellow
+    | Purple
+    | Orange
+    with
+        static member Parse color =
+            match color with
+            | &quot;green&quot; -&gt; Color.Green
+            | &quot;blue&quot; -&gt; Color.Blue
+            | &quot;yellow&quot; -&gt; Color.Yellow
+            | &quot;purple&quot; -&gt; Color.Purple
+            | &quot;orange&quot; -&gt; Color.Orange
+            | _ -&gt; raise(ArgumentException(&quot;Invalid color&quot;))
+        override this.ToString() =
+            match this with
+            | Green -&gt; &quot;Green&quot;
+            | Blue -&gt; &quot;Blue&quot;
+            | Yellow -&gt; &quot;Yellow&quot;
+            | Purple -&gt; &quot;Purple&quot;
+            | Orange -&gt; &quot;Orange&quot;
+
+type Skill(color: Color, value: int) =
+    do if value &lt; 0 || value &gt; 9 then raise (ArgumentException(&quot;Invalid skill value: &quot; + sprintf &quot;%i&quot; value))
+    member this.Color = color
+    member this.Value = value
+
+type Bitizen(name: string, dreamJob: string, skills: Skill[]) =
+    do if skills.Length &lt;&gt; 5 then raise(ArgumentException(&quot;Invalid number of skills&quot;))
+    let skillSum = skills |&gt; Array.sumBy (fun s -&gt; s.Value) |&gt; decimal
+    member this.Name = name
+    member this.DreamJob = dreamJob
+    member this.SortValueFor (color: Color) =
+        let matchingSkill = decimal (skills |&gt; (Array.find (fun s -&gt; s.Color = color))).Value
+        let avgOtherskills = (skillSum - matchingSkill) / 4m
+        0m - (matchingSkill * 10m + 10m - avgOtherskills)
+    override this.ToString() =
+        name + &quot;, &quot; + dreamJob + &quot;, [| &quot; + String.Join(&quot;; &quot;, skills |&gt; Array.map (fun s -&gt; string s.Color + &quot;: &quot; + string s.Value)) + &quot; |]&quot;
+
+type Job = 
+    { Name: string; Color: Color; }
+    with
+        override this.ToString() =
+            this.Name + &quot;, &quot; + string this.Color
+
+type Position = 
+    { Job: Job; Employee: Bitizen; }
+    with
+        override this.ToString() =
+            let jobStr = string this.Job
+            jobStr + String.replicate (25 - jobStr.Length) &quot; &quot; + string this.Employee
+</code></pre>
+<p>From this we can create a list of bitizens that each have a dream job and a helper method for getting her skill value based on a color. We can also create a list of jobs where each job is of a specific color (i.e. category).</p>
+<h2>Filling vacant positions</h2>
+<p>From one list of jobs and one of bitizens, assign jobs according to our earlier defined formula using the following function:</p>
+<pre><code>let fillPositions filter (jobs: Job list) (bitizens: Bitizen list) =
+    let fillOne (job: Job) (bitizens: Bitizen list) filter =
+        let matches, rest = List.partition (fun b -&gt; filter job b) bitizens
+        let sortedMatches = matches |&gt; List.sortBy (fun b -&gt; b.SortValueFor job.Color)
+        match sortedMatches with
+        | [] -&gt; None, bitizens
+        | head::tail  -&gt; Some { Job = job; Employee = head }, tail@rest
+    let rec fillPositionsInner (jobs: Job list) (bitizens: Bitizen list) (positions: Position list) =
+        match jobs with
+        | [] -&gt; positions, bitizens
+        | head::tail -&gt; match fillOne head bitizens filter with
+                        | None, b -&gt; fillPositionsInner tail b (positions)
+                        | Some p, b -&gt; fillPositionsInner tail b (p::positions)
+    fillPositionsInner jobs bitizens []
+</code></pre>
+<p>This function contains two other functions, <code>fillOne</code> and <code>fillPositionsInner</code>. The latter takes the first job and then uses <code>fillOne</code> to find the most suitable bitizen. Apart from the jobs- and bitizen lists a filter argument is also required, more on this soon. <code>fillOne</code> sorts the bitizen list according to &quot;best for the requested skill&quot;, if the bitizen list is empty then a tuple <code>None * Bitizen list</code> is returned, otherwise <code>Some(Position) * Bitizen list</code>, where the second position holds the remaining unassigned bitizens, is returned.</p>
+<h2>Program Start</h2>
+<p>The program is started using this function:</p>
+<pre><code>[&lt;EntryPoint&gt;]
+let main argv =
+    let jobs = 
+        (new CsvProvider&lt;&quot;shops.csv&quot;&gt;()).Data
+        |&gt; Seq.map (fun r -&gt; seq { for i in 1..3 -&gt; { Name = r.Name; Color = Color.Parse r.Color }})
+        |&gt; Seq.collect (fun o -&gt; seq { yield! o })
+        |&gt; List.ofSeq
+
+    let bitizens = 
+        (new CsvProvider&lt;&quot;bitizens.csv&quot;&gt;()).Data
+        |&gt; Seq.map
+            (fun r -&gt;
+                Bitizen(r.Name, r.DreamJob, 
+                    [| 
+                        Skill(Color.Blue, r.Blue);
+                        Skill(Color.Green, r.Green);
+                        Skill(Color.Orange, r.Orange);
+                        Skill(Color.Purple, r.Purple);
+                        Skill(Color.Yellow, r.Yellow)
+                    |]))
+        |&gt; List.ofSeq
+
+    let dreamPositions, bitizens = fillPositions (fun j b -&gt; j.Name.ciCompare(b.DreamJob)) jobs bitizens
+    let normalPositions, bitizens = fillPositions (fun j b -&gt; true) jobs bitizens
+
+    File.WriteAllLines(&quot;positions.txt&quot;, dreamPositions@normalPositions |&gt; List.map (fun p -&gt; string p))
+
+    0
+</code></pre>
+<p>It reads two csv files using the <a href="http://fsharp.github.io/FSharp.Data/library/CsvProvider.html">csv type provider</a> and from this creates the types we need (oh, and type providers are the greatest thing ever). The available jobs list is created by making three jobs for each business. Next we need to fill positions by calling the <code>fillPositions</code> function. This is done twice, first by using a filter function that matches dream jobs, making sure that these are assigned first, then once more for the remaining bitizens. One last note on this function, as you can see there is a string method <code>ciCompare</code> in the dream positions filter function. This is simply an extension function on the string type which is defined as:</p>
+<pre><code>type String with
+    member this.ciCompare other =
+        System.String.Equals(this, other, StringComparison.InvariantCultureIgnoreCase)
+</code></pre>
+<h2>Source</h2>
+<p>You can find the full source as a Visual Studio solution on my github account: <a href="https://github.com/andagr/SortTinyTowerWorkers">https://github.com/andagr/SortTinyTowerWorkers</a></p>
+<h2>Final Note</h2>
+<p>I wrote this tool as an F# learning experience and I welcome any input on improvements on everything from the syntax to how this could be better modeled.</p>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </body>
+</html>

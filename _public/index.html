@@ -69,20 +69,21 @@
             <div class="card-content">
               <div class="media-content has-text-centered">
                 <p class="title article-title">
-                  <a href="/posts/post2.html">
-                    Some other post title
+                  <a href="/blog/post/url-rewrite-for-asp-net-web-api-spa.html">
+                    Url rewrite for ASP.NET Web API SPA
                   </a>
                 </p>
                 <p class="subtitle is-6 article-subtitle">
                   <a href="#">
-                    @k_cieslak
+                    Andreas Ågren
                   </a>
-                  on 2020-02-20
+                  on 2015-11-23
                 </p>
               </div>
               <div class="content article-body">
-                <h1>Something else</h1>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi nisi diam, vehicula quis blandit id, suscipit sed libero. Proin at diam dolor. In hac habitasse platea dictumst. Donec quis dui vitae quam eleifend dignissim non sed libero. In hac habitasse platea dictumst. In ullamcorper mollis risus, a vulputate quam accumsan at. Donec sed felis sodales, blandit orci id, vulputate orci.</p>
+                <p><img src="/images/html-css-js.png" alt="HTML JS CSS" /></p>
+<p>I just wanted to share this thing I had to search a while for.</p>
+<p>When making a SPA (Single Page Application) I divided my website into two parts: One part Asp.net web api and one part static html/js/css, as one usually does. However, I also wanted to use the html5 history api with no hash in the url. For example, imagine that <code>http://example.com/</code> returns a list of users, and when clicking on &quot;Dolly Parton&quot; we change the url to <code>http://example.com/users/dolly-parton</code>, an ajax request is made to a back-end api, which returns a JSON-string, which is rendered in the view. Now imagine that we bookmark that url and then open it later, what will happen? Well, the server will receive a request for that path and e.g. try to find a directory /users/dolly-parton with an index.html in it, none is found so 404 you get.</p>
 
               </div>
             </div>
@@ -91,20 +92,107 @@
             <div class="card-content">
               <div class="media-content has-text-centered">
                 <p class="title article-title">
-                  <a href="/posts/post.html">
-                    Some nice post title
+                  <a href="/blog/post/another-porter-stemmer-in-fsharp.html">
+                    Another Porter Stemmer in F#
                   </a>
                 </p>
                 <p class="subtitle is-6 article-subtitle">
                   <a href="#">
-                    @k_cieslak
+                    Andreas Ågren
                   </a>
-                  on 2020-02-19
+                  on 2014-04-20
                 </p>
               </div>
               <div class="content article-body">
-                <h1>Introduction</h1>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi nisi diam, vehicula quis blandit id, suscipit sed libero. Proin at diam dolor. In hac habitasse platea dictumst. Donec quis dui vitae quam eleifend dignissim non sed libero. In hac habitasse platea dictumst. In ullamcorper mollis risus, a vulputate quam accumsan at. Donec sed felis sodales, blandit orci id, vulputate orci.</p>
+                <h2>Stemming</h2>
+<p>Stemming is the process for reducing words to their root form, e.g. both &quot;acceptable&quot; and &quot;acceptance&quot; might be reduced to &quot;accept&quot;.</p>
+<p>I'm working on a side project where I will have use for a stemmer, so I decided to look around a bit for a straight forward, and well explained, solution. Many resources seemed to point towards the <a href="http://snowball.tartarus.org/algorithms/porter/stemmer.html">Porter Stemmer</a>. This is an algorithm created by <a href="http://tartarus.org/%7Emartin/">Martin Porter</a> and it works by setting up a few rules which are then, together with matching word endings, used for matching which words should be reduced to which stems.</p>
+<p>Please note that as the title suggests, this is hardly the only F# solution. A search quickly reveals at least two others:</p>
+<ul>
+<li><a href="http://blogs.msdn.com/b/christianb/archive/2011/06/24/a-porter-stemmer-in-f.aspx">A Porter Stemmer in F# - MSDN Blogs</a></li>
+<li><a href="http://fwaris.wordpress.com/2012/10/30/porter-stemmer-in-f/">Porter Stemmer in F# | Faisal's space</a></li>
+</ul>
+<p>Using the algorithm description, and by getting quite a lot of inspiration from Faisal's solution, I have put together my own implementation:</p>
+
+              </div>
+            </div>
+          </div>
+          <div class="card article">
+            <div class="card-content">
+              <div class="media-content has-text-centered">
+                <p class="title article-title">
+                  <a href="/blog/post/helping-bitizens-to-better-jobs-in-tiny-tower-using-fsharp.html">
+                    Helping Bitizens to Better Jobs in Tiny Tower Using F#
+                  </a>
+                </p>
+                <p class="subtitle is-6 article-subtitle">
+                  <a href="#">
+                    Andreas Ågren
+                  </a>
+                  on 2014-03-17
+                </p>
+              </div>
+              <div class="content article-body">
+                <p><img src="/images/650px-Banner.png" alt="Tiny Tower" /></p>
+<p>From the <a href="http://tinytower.wikia.com/wiki/Tiny_Tower_Wiki">Tiny Tower wiki</a>:</p>
+<blockquote>
+<p>Tiny Tower is a simulation game developed by <a href="http://www.nimblebit.com/">NimbleBit</a> and released in
+June 2011. It is available to download on Apple iOS devices (3.0 or
+later) and Android devices. The object of the game is to build and
+manage a large skyscraper. Each new floor the player builds is either
+a Commercial floor that hosts businesses and venues, or a Residential
+floor that Bitizens live in. Bitizens live and work in the player's
+Tower, paying rent every day and stocking the Commercial floors with
+items to sell. The player's goal is to turn a profit, build more
+floors, and manage their ever-growing tower.</p>
+</blockquote>
+<p>Like you and me, bitizens have job satisfaction. This is decided by two things, their skill in the job, and if it is their dream job. To be specific:</p>
+
+              </div>
+            </div>
+          </div>
+          <div class="card article">
+            <div class="card-content">
+              <div class="media-content has-text-centered">
+                <p class="title article-title">
+                  <a href="/blog/post/learning-fsharp.html">
+                    Learning F#
+                  </a>
+                </p>
+                <p class="subtitle is-6 article-subtitle">
+                  <a href="#">
+                    Andreas Ågren
+                  </a>
+                  on 2014-01-04
+                </p>
+              </div>
+              <div class="content article-body">
+                <p>My main programming language when I was studying was, as for many other developers, Java. There were other languages too, but Java was the main tool for learning basic software development. Later in my work I came in contact with C#, and since then I have come to prefer it over Java due to its features and ability to quickly evolve, and the extensive .NET API.</p>
+<p>The basic aspect of C# is the object orientation which works similarly as in Java, although there are <a href="http://stackoverflow.com/questions/1882692/c-sharp-constructor-execution-order">subtle differences</a>. However, what makes it a bit more exciting are other features such as dynamic, async/await and functional. The latter is something that has gained quite a lot of popularity, although <a href="http://en.wikipedia.org/wiki/Functional_programming#History">it's not a new paradigm</a>. It was this aspect of C#, and in practice LINQ, that got me curious about functional programming in general.</p>
+<p>I decided to take a closer look at F#, partly because it's a member of the .NET platform but also because it seems to be developed from a pragmatic point of view. It is also very exciting that it is open source, seems to have a friendly community, and has support on several different platforms. Also noteworthy, at the time of writing F# has risen from position 45 to 16 in the <a href="http://www.tiobe.com/index.php/content/paperinfo/tpci/index.html">TIOBE index</a>.</p>
+<p><img src="/images/fsharp128.png" alt="F# Logo" /></p>
+<p>I am still very much a beginner, but in the spirit of recording things here are the resources I have used so far.</p>
+
+              </div>
+            </div>
+          </div>
+          <div class="card article">
+            <div class="card-content">
+              <div class="media-content has-text-centered">
+                <p class="title article-title">
+                  <a href="/blog/post/configuring-log4net-programmatically.html">
+                    Configuring Log4Net programmatically
+                  </a>
+                </p>
+                <p class="subtitle is-6 article-subtitle">
+                  <a href="#">
+                    Andreas Ågren
+                  </a>
+                  on 2013-11-12
+                </p>
+              </div>
+              <div class="content article-body">
+                <p><a href="http://logging.apache.org/log4net/">Log4Net</a> is a widely used logging framework by Apache, who ported it from log4j, also made by Apache. It can be configured for a number of different things, such as where to output the logs and how to format the log text.</p>
 
               </div>
             </div>

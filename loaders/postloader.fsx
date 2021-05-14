@@ -17,7 +17,7 @@ type Post = {
     summary: string
 }
 
-let contentDir = "posts"
+let contentDir = "blog/post"
 
 let markdownPipeline =
     MarkdownPipelineBuilder()
