@@ -23,7 +23,8 @@ let staticPredicate (projectRoot: string, page: string) =
        page.Contains ".sass-cache" ||
        page.Contains ".git" ||
        page.Contains ".ionide" ||
-       ext = ".fsx"
+       ext = ".fsx" ||
+       ext = ".ps1"
     then
         false
     else

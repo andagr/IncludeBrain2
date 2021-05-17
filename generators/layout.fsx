@@ -88,6 +88,17 @@ let published (post: Postloader.Post) =
     |> Option.defaultValue System.DateTime.Now
     |> fun n -> n.ToString("yyyy-MM-dd")
 
+let articleBody useSummary (post: Postloader.Post) =
+  if useSummary then
+    div [Class "content article-body"] [
+        !!post.summary
+        p [] [a [Href post.link] [!! "More..."]]
+    ]
+  else
+    div [Class "content article-body"] [
+        !!post.content
+    ]
+
 let postLayout (useSummary: bool) (post: Postloader.Post) =
     div [Class "card article"] [
         div [Class "card-content"] [
@@ -98,9 +109,6 @@ let postLayout (useSummary: bool) (post: Postloader.Post) =
                 !! (sprintf "on %s" (published post))
                 ]
             ]
-            div [Class "content article-body"] [
-                !! (if useSummary then post.summary else post.content)
-
-            ]
+            articleBody useSummary post
         ]
     ]
